@@ -219,13 +219,21 @@ example:
 	begin   end
 */
 static bool parseNode(const std::shared_ptr<Xml>& xml, std::shared_ptr<Xml::Tag>& tag, const std::string::const_iterator& begin, std::string::const_iterator& end) {
-	// begin -> "<"
+	// <	[name] attr="value" >
+	// ^
+	// begin
 	auto current = begin + 1;
-
+	// <	[name] attr="value" >
+	//  ^
+	//  current
 	while (xmlIsSpace(current)) {
 		if (*current == '/' || *current == '>' || current == xml->toXmlString().end())return false;//error: xml format[tag without name]
 		current++;
 	}
+
+	// <	[name] attr="value" >
+	//      ^
+	//      current
 	auto nbegin = current;
 	while (!xmlIsSpace(current)) {
 		if (*current == '/') {
@@ -247,8 +255,11 @@ static bool parseNode(const std::shared_ptr<Xml>& xml, std::shared_ptr<Xml::Tag>
 	}
 	// There may be a few space between [name] and end of the tag(">" or "/>")
 	auto nend = current;
-	tag->name = Xml::StringView(nbegin, current);
+	tag->name = Xml::StringView(nbegin, nend);
 	if (!xmlNameCheck(tag->name))return false;
+	// <[name] attr="value" >
+	//        ^
+	//        current
 
 	// skip to end of tag (">" or "/>")
 	while (true) {
@@ -316,7 +327,7 @@ static bool parseNode(const std::shared_ptr<Xml>& xml, std::shared_ptr<Xml::Tag>
 				//		...
 				//		< ... />
 				//</ ... >
-				auto stag = std::make_shared<Xml::Tag>(xml, current);
+				auto stag = std::make_shared<Xml::Tag>(xml, current , tag);
 				auto end = current;
 				auto res = parseNode(xml, stag, current, end);
 				if (!res)return false;//error: sub tag parse failed
@@ -342,6 +353,7 @@ static bool parseNode(const std::shared_ptr<Xml>& xml, std::shared_ptr<Xml::Tag>
 static bool parseClassify(const std::shared_ptr<Xml>& xml, const std::string::const_iterator& begin, std::string::const_iterator& end) {
 	if (*(begin + 1) != '?') {
 		// this tag is the root tag
+		//< ... > ... < ... />
 		auto root = std::make_shared<Xml::Tag>(xml, begin);
 		auto res = parseNode(xml, root, begin, end);
 		if (res)
@@ -350,6 +362,7 @@ static bool parseClassify(const std::shared_ptr<Xml>& xml, const std::string::co
 	}
 	else {
 		// this tag is external tag
+		//<? ... ?>
 		auto node = std::make_shared<Xml::Tag>(xml, begin);
 		auto res = parseExtern(xml, node, begin, end);
 		if (res)
@@ -603,7 +616,6 @@ std::string Xml::StringView::toString()const {
 			normal:
 				str += *iter;
 			}
-
 		}
 		else
 			str += *iter;

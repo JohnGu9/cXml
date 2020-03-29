@@ -103,6 +103,16 @@ public:
 			attributes(),
 			children() {}
 
+		Tag(const std::shared_ptr<Xml>& xml_, const std::string::const_iterator& begin_, const std::shared_ptr<Xml::Tag>& parent) :
+			begin_(begin_),
+			xml(xml_),
+			parent(parent),
+			name(),
+			content(),
+			attributes(),
+			children() {}
+
+
 		std::string::const_iterator begin_;
 		std::weak_ptr<Xml> xml;
 		std::weak_ptr<Tag> parent;
@@ -111,6 +121,18 @@ public:
 		std::map<std::string, Xml::StringView> attributes;
 		std::list<std::shared_ptr<Tag>> children;
 
+		/*
+		Get the begin string::iterator for this tag
+		return: string::iterator for this tag
+		example0:
+			<[name] attr:"value">
+			^
+			begin
+		example1:
+			<[name]/>
+			^
+			begin()
+		*/
 		inline std::string::const_iterator begin()const {
 			return this->begin_;
 		}
@@ -160,7 +182,7 @@ public:
 	/*
 	Convert xml to yaml-like format string(for debug)
 	*/
-	const std::string toString() const;
+	const std::string toString()const;
 
 	/*
 	Delete cache, only remove Xml from [_fileCache]. If others catch the std::shared_ptr<Xml>, std::shared_ptr will not release resource.
