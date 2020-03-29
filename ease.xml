@@ -4,4 +4,9 @@
   <from>Jani</from>
   <heading>Reminder</heading>
   <body>Don't forget me this weekend!</body>
+
+  <title>
+    <subTitle0/>
+    <subTitle1></subTitle1>
+  </title>
 </note>
