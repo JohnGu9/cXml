@@ -11,7 +11,7 @@ int main()
 
 	/*load xml file, call fromFile(string) need to call free()*/
 	/*Xml will return a shared_ptr for xml*/
-	auto xml = Xml::fromFile( "ease.xml");
+	auto xml = Xml::fromFile( "test.xml");
 	if (xml == nullptr) {
 		cout << "xml read file failed" << endl;
 		return 0;
