@@ -4,7 +4,8 @@
 cmake_minimum_required (VERSION 3.8)
 
 project ("cXml")
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/XmlFIleForTest/ease.xml ${CMAKE_CURRENT_BINARY_DIR}/ease.xml COPYONLY)
+
+configure_file(${CMAKE_SOURCE_DIR}/XmlFIleForTest/ease.xml ${CMAKE_CURRENT_BINARY_DIR}/ease.xml COPYONLY)
 
 include_directories(./source)
 add_subdirectory(./source)

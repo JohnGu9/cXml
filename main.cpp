@@ -28,7 +28,7 @@ int main()
 	/*print the debug string*/
 	cout << xml->toString() << endl;
 
-	/*If get xml pointer using fromFile(string), need to call free()*/
+	/*If get xml pointer come from fromFile(string), need to call free()*/
 	xml->free();
 
 	return 0;

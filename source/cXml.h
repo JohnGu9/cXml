@@ -41,8 +41,8 @@ public:
 		std::string::const_iterator _end;
 		bool _vaild;
 	public:
-
-#ifdef  _DEBUG
+		static bool compare(const Xml::StringView& first, const Xml::StringView& second);
+#ifdef  _XML_DEBUG
 		std::string view;
 		StringView() :_begin(), _end(), _vaild(false), view() {}
 		StringView(std::string::const_iterator&& begin_, std::string::const_iterator&& end_) :_begin(begin_), _end(end_), _vaild(true), view(_begin, _end) {}

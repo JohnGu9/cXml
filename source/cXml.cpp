@@ -327,7 +327,7 @@ static bool parseNode(const std::shared_ptr<Xml>& xml, std::shared_ptr<Xml::Tag>
 				//		...
 				//		< ... />
 				//</ ... >
-				auto stag = std::make_shared<Xml::Tag>(xml, current , tag);
+				auto stag = std::make_shared<Xml::Tag>(xml, current, tag);
 				auto end = current;
 				auto res = parseNode(xml, stag, current, end);
 				if (!res)return false;//error: sub tag parse failed
@@ -520,6 +520,17 @@ std::shared_ptr<Xml> Xml::Tag::toXml() const
 {
 	// TODO: implement method
 	return std::shared_ptr<Xml>();
+}
+
+bool Xml::StringView::compare(const Xml::StringView& first, const Xml::StringView& second)
+{
+	auto fIter = first._begin, sIter = second._begin;
+	for (; fIter != first._end; fIter++, sIter++) {
+		if (sIter == second._end)return false;
+		else if (*fIter != *sIter)return false;
+	}
+	if (sIter != second._end)return false;
+	return true;
 }
 
 /*
