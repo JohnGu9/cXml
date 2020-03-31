@@ -541,7 +541,7 @@ static std::string toEndTag(const Xml::Tag* tag) {
 	return "</" + tag->name.toXmlString() + ">";
 }
 static std::string toEndPointTag(const Xml::Tag* tag) {
-	return "</" + tag->name.toXmlString() + attrToString(tag) + "/>";
+	return "<" + tag->name.toXmlString() + attrToString(tag) + "/>";
 }
 
 std::string Xml::Tag::toXmlString()const
