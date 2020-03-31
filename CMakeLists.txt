@@ -12,7 +12,7 @@ add_subdirectory(./source)
 
 # Add source to this project's executable.
 
-add_executable (main "main.cpp")
-target_link_libraries(main cXml)
+add_executable (cXmlDemo "main.cpp")
+target_link_libraries(cXmlDemo cXml)
 
 # TODO: Add tests and install targets if needed.

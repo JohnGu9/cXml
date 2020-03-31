@@ -45,8 +45,8 @@ public:
 #ifdef  _XML_DEBUG
 		std::string view;
 		StringView() :_begin(), _end(), _vaild(false), view() {}
-		StringView(std::string::const_iterator&& begin_, std::string::const_iterator&& end_) :_begin(begin_), _end(end_), _vaild(true), view(_begin, _end) {}
-		StringView(const std::string::const_iterator& begin_, const std::string::const_iterator& end_) :_begin(begin_), _end(end_), _vaild(true), view(_begin, _end) {}
+		StringView(std::string::const_iterator&& begin_, std::string::const_iterator&& end_) :_begin(begin_), _end(end_), _vaild(begin_ != end_), view(_begin, _end) {}
+		StringView(const std::string::const_iterator& begin_, const std::string::const_iterator& end_) :_begin(begin_), _end(end_), _vaild(begin_ != end_), view(_begin, _end) {}
 
 		StringView(const StringView& other) :_begin(other._begin), _end(other._end), _vaild(other._vaild), view() {}
 		StringView(StringView&& other)noexcept :_begin(std::move(other._begin)), _end(std::move(other._end)), _vaild(std::move(other._vaild)), view(_begin, _end) {}
@@ -60,8 +60,8 @@ public:
 		}
 #else
 		StringView() :_begin(), _end(), _vaild(false) {}
-		StringView(std::string::const_iterator&& begin_, std::string::const_iterator&& end_) :_begin(begin_), _end(end_), _vaild(true) {}
-		StringView(const std::string::const_iterator& begin_, const std::string::const_iterator& end_) :_begin(begin_), _end(end_), _vaild(true) {}
+		StringView(std::string::const_iterator&& begin_, std::string::const_iterator&& end_) :_begin(begin_), _end(end_), _vaild(begin_!= end_) {}
+		StringView(const std::string::const_iterator& begin_, const std::string::const_iterator& end_) :_begin(begin_), _end(end_), _vaild(begin_ != end_) {}
 
 		StringView(const StringView& other) :_begin(other._begin), _end(other._end), _vaild(other._vaild) {}
 		StringView(StringView&& other)noexcept :_begin(std::move(other._begin)), _end(std::move(other._end)), _vaild(std::move(other._vaild)) {}
@@ -80,16 +80,17 @@ public:
 		}
 
 		inline bool vaild() const {
-			return !_vaild;
+			return _vaild;
 		}
 
 		/*
-		low performance convert to string for debug
+		Escape character to normal character
 		args:
 			void
-		return: string in format like yaml
+		return: normal character
 		*/
 		std::string toString() const;
+		std::string toXmlString() const;
 	};
 
 	class _XML_API Tag {
@@ -138,7 +139,7 @@ public:
 		}
 
 		std::string toString()const;
-		std::string& toXmlString()const;
+		std::string toXmlString()const;
 		std::shared_ptr<Xml> toXml()const;
 	};
 
@@ -162,7 +163,8 @@ public:
 	return: std::shared_ptr<Xml> that point to Xml
 	*/
 	static std::shared_ptr<Xml> fromString(const std::shared_ptr<std::string>& str);
-
+	static std::shared_ptr<Xml> fromString(const std::string& str);
+	static std::shared_ptr<Xml> fromString(std::string&& str);
 	/*
 	Update xml content. if file doesn't exist in cache, cache the file
 	args:

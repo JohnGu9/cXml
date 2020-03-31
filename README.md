@@ -1,7 +1,7 @@
 # cXml
 A open-source c++ library for parse markup language data. 
 ### Features
-- **Max Performance :tw-1f680:**
+- **Max performance :tw-1f680:**
 `only retrieve characters once`
 
 - **Less memory :tw-1f4e6:**

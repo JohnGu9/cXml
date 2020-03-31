@@ -222,12 +222,13 @@ static bool parseNode(const std::shared_ptr<Xml>& xml, std::shared_ptr<Xml::Tag>
 	// <	[name] attr="value" >
 	// ^
 	// begin
+	auto stringEnd = xml->toXmlString().end();
 	auto current = begin + 1;
 	// <	[name] attr="value" >
 	//  ^
 	//  current
 	while (xmlIsSpace(current)) {
-		if (*current == '/' || *current == '>' || current == xml->toXmlString().end())return false;//error: xml format[tag without name]
+		if (*current == '/' || *current == '>' || current == stringEnd)return false;//error: xml format[tag without name]
 		current++;
 	}
 
@@ -270,13 +271,13 @@ static bool parseNode(const std::shared_ptr<Xml>& xml, std::shared_ptr<Xml::Tag>
 		if (*current == '\"') {
 			do {
 				current++;
-				if (current == xml->toXmlString().end())return false;
+				if (current == stringEnd)return false;
 			} while (*current != '\"');
 		}
 		else if (*current == '\'') {
 			do {
 				current++;
-				if (current == xml->toXmlString().end())return false;
+				if (current == stringEnd)return false;
 			} while (*current != '\'');
 		}
 		else if (*current == '/') {
@@ -291,7 +292,7 @@ static bool parseNode(const std::shared_ptr<Xml>& xml, std::shared_ptr<Xml::Tag>
 			else
 				return false;//error: xml format[tag without end up with "/>"]
 		}
-		else if (current == xml->toXmlString().end()) {
+		else if (current == stringEnd) {
 			return false;//error: xml format[tag without end up with "/>"]
 		}
 	}
@@ -305,7 +306,7 @@ static bool parseNode(const std::shared_ptr<Xml>& xml, std::shared_ptr<Xml::Tag>
 
 	while (true) {
 		while (xmlIsSpace(current)) {
-			if (current == xml->toXmlString().end())return false;
+			if (current == stringEnd)return false;
 			current++;
 		}
 		if (*current == '<') {
@@ -313,7 +314,7 @@ static bool parseNode(const std::shared_ptr<Xml>& xml, std::shared_ptr<Xml::Tag>
 				// find end tag (</ ... >)
 				// TODO: check the end tag name is matched the begin tag name
 				while (*current != '>') {
-					if (current == xml->toXmlString().end())return false;//error: xml format[tag without end up with ">"]
+					if (current == stringEnd)return false;//error: xml format[tag without end up with ">"]
 					current++;
 				}
 				end = ++current;
@@ -339,7 +340,7 @@ static bool parseNode(const std::shared_ptr<Xml>& xml, std::shared_ptr<Xml::Tag>
 			// tag with content(< ... > ... </ ... >)
 			auto contentBegin = current;
 			while (*current != '<') {
-				if (current == xml->toXmlString().end())return false;//error: xml format[tag without end up with ">"]
+				if (current == stringEnd)return false;//error: xml format[tag without end up with ">"]
 				current++;
 			}
 			auto contentEnd = current;
@@ -413,8 +414,21 @@ std::shared_ptr<Xml> Xml::fromFile(const std::string& path)
 std::shared_ptr<Xml> Xml::fromString(const std::shared_ptr<std::string>& str)
 {
 	auto rawPtr = new Xml(str);
-	auto res = std::shared_ptr<Xml>(rawPtr);
-	return res;
+	return std::shared_ptr<Xml>(rawPtr);
+}
+
+std::shared_ptr<Xml> Xml::fromString(const std::string& str)
+{
+	auto ptr = std::make_shared<std::string>(str);
+	auto rawPtr = new Xml(ptr);
+	return std::shared_ptr<Xml>(rawPtr);
+}
+
+std::shared_ptr<Xml> Xml::fromString(std::string&& str)
+{
+	auto ptr = std::make_shared<std::string>(str);
+	auto rawPtr = new Xml(ptr);
+	return std::shared_ptr<Xml>(rawPtr);
 }
 
 std::shared_ptr<Xml> Xml::updateFromFile(const std::string& path)
@@ -470,7 +484,7 @@ inline const std::string& Xml::toXmlString() const
 
 const std::string Xml::toString() const
 {
-	if (root == nullptr)return "Warning: this is not a xml file";
+	if (root == nullptr)return "Warning: this is not a xml string";
 	// TODO: add externTag to string
 	return root->toString();
 }
@@ -510,16 +524,54 @@ std::string Xml::Tag::toString()const
 	return res;
 }
 
-std::string& Xml::Tag::toXmlString()const
+static std::string attrToString(const Xml::Tag* tag) {
+	if (tag->attributes.empty())return std::string();
+	std::string res = " ";// add a space
+	for (auto iter = tag->attributes.begin(); iter != tag->attributes.end(); iter++) {
+		res += iter->first + "=" + "\"" + iter->second.toXmlString() + "\"";
+	}
+	return res;
+}
+
+static std::string toBeginTag(const Xml::Tag* tag) {
+	// TODO: attr to string
+	return "<" + tag->name.toXmlString() + attrToString(tag) + ">";
+}
+static std::string toEndTag(const Xml::Tag* tag) {
+	return "</" + tag->name.toXmlString() + ">";
+}
+static std::string toEndPointTag(const Xml::Tag* tag) {
+	return "</" + tag->name.toXmlString() + attrToString(tag) + "/>";
+}
+
+std::string Xml::Tag::toXmlString()const
 {
-	auto xml = toXml();
-	return xml->content;
+	// TODO: implement method
+	if (content.vaild()) {
+		std::string res;
+		res += toBeginTag(this);
+		res += content.toXmlString();
+		res += toEndTag(this);
+		return res;
+	}
+	else if (!children.empty()) {
+		std::string res;
+		res += toBeginTag(this);
+		for (auto iter = children.begin(); iter != children.end(); iter++) {
+			res += (*iter)->toXmlString();
+		}
+		res += toEndTag(this);
+		return res;
+	}
+	else {
+		return toEndPointTag(this);
+	}
+
 }
 
 std::shared_ptr<Xml> Xml::Tag::toXml() const
 {
-	// TODO: implement method
-	return std::shared_ptr<Xml>();
+	return Xml::fromString(toXmlString());
 }
 
 bool Xml::StringView::compare(const Xml::StringView& first, const Xml::StringView& second)
@@ -633,4 +685,9 @@ std::string Xml::StringView::toString()const {
 	}
 
 	return str;
+}
+
+std::string Xml::StringView::toXmlString() const
+{
+	return std::string(_begin, _end);
 }

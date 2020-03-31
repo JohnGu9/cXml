@@ -11,14 +11,14 @@ int main()
 
 	/*load xml file, call fromFile(string) need to call free()*/
 	/*Xml will return a shared_ptr for xml*/
-	auto xml = Xml::fromFile( "test.xml");
+	auto xml = Xml::fromFile("test.xml");
 	if (xml == nullptr) {
 		cout << "xml read file failed" << endl;
 		return 0;
 	}
 
 	/*print the raw xml string*/
-	cout << xml->toXmlString()<< endl;
+	cout << xml->toXmlString() << endl;
 	auto res = Xml::parse(xml);//or call "xml->update()"
 	if (res == false) {
 		cout << "xml parse failed" << endl;
@@ -27,6 +27,9 @@ int main()
 
 	/*print the debug string*/
 	cout << xml->toString() << endl;
+
+	auto newXml = xml->root->toXml();// create xml fromString(), no need to call free()
+	cout << newXml->toXmlString() << endl;
 
 	/*If get xml pointer come from fromFile(string), need to call free()*/
 	xml->free();
