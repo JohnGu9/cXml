@@ -1,12 +1,63 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<note id ="13">
-  <to>Tove</to>
-  <from>Jani</from>
-  <heading>Reminder</heading>
-  <body>Don't forget me this weekend!</body>
-
-  <title>
-    <subTitle0/>
-    <subTitle1 text="wow"></subTitle1>
-  </title>
-</note>
+<SOAP-ENV:Envelope SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" 
+  xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" 
+  xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" 
+  xmlns:cwmp="urn:dslforum-org:cwmp-1-0" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <SOAP-ENV:Header>
+    <cwmp:ID SOAP-ENV:mustUnderstand="1">16051</cwmp:ID>
+  </SOAP-ENV:Header>
+  <SOAP-ENV:Body>
+    <cwmp:Inform>
+      <DeviceId>
+        <Manufacturer>SFU</Manufacturer>
+        <OUI>74B9EB</OUI>
+        <ProductClass>EN604-C-RMT</ProductClass>
+        <SerialNumber>PHXJ-UCZM-LKMS-TTPL</SerialNumber>
+      </DeviceId>
+      <Event SOAP-ENC:arrayType="cwmp:EventStruct[1]" xsi:type="SOAP-ENC:Array">
+        <EventStruct>
+          <EventCode>2 PERIODIC</EventCode>
+          <CommandKey/>
+        </EventStruct>
+      </Event>
+      <MaxEnvelopes>1</MaxEnvelopes>
+      <CurrentTime>0001-01-01T02:52:36</CurrentTime>
+      <RetryCount>0</RetryCount>
+      <ParameterList SOAP-ENC:arrayType="cwmp:ParameterValueStruct[8]" xsi:type="SOAP-ENC:Array">
+        <ParameterValueStruct>
+          <Name>InternetGatewayDevice.DeviceSummary</Name>
+          <Value xsi:type="xsd:string">InternetGatewayDevice:1.0[](Baseline:1, IPPing:1)</Value>
+        </ParameterValueStruct>
+        <ParameterValueStruct>
+          <Name>InternetGatewayDevice.DeviceInfo.SpecVersion</Name>
+          <Value xsi:type="xsd:string">1.0</Value>
+        </ParameterValueStruct>
+        <ParameterValueStruct>
+          <Name>InternetGatewayDevice.DeviceInfo.HardwareVersion</Name>
+          <Value xsi:type="xsd:string">V2.0</Value>
+        </ParameterValueStruct>
+        <ParameterValueStruct>
+          <Name>InternetGatewayDevice.DeviceInfo.SoftwareVersion</Name>
+          <Value xsi:type="xsd:string">V2.0.4-11015</Value>
+        </ParameterValueStruct>
+        <ParameterValueStruct>
+          <Name>InternetGatewayDevice.DeviceInfo.ProvisioningCode</Name>
+          <Value xsi:type="xsd:string"/>
+        </ParameterValueStruct>
+        <ParameterValueStruct>
+          <Name>InternetGatewayDevice.ManagementServer.ConnectionRequestURL</Name>
+          <Value xsi:type="xsd:string">http://192.168.136.99:7547/tr69</Value>
+        </ParameterValueStruct>
+        <ParameterValueStruct>
+          <Name>InternetGatewayDevice.ManagementServer.ParameterKey</Name>
+          <Value xsi:type="xsd:string"/>
+        </ParameterValueStruct>
+        <ParameterValueStruct>
+          <Name>InternetGatewayDevice.WANDevice.1.WANConnectionDevice.4.WANIPConnection.1.ExternalIPAddress</Name>
+          <Value xsi:type="xsd:string">192.168.136.99</Value>
+        </ParameterValueStruct>
+      </ParameterList>
+    </cwmp:Inform>
+  </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

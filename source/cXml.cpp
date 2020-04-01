@@ -44,31 +44,31 @@ static bool getAttribute(std::shared_ptr<Xml::Tag>& tag, const std::string::cons
 		while (xmlIsSpace(iter)) {
 			if (++iter == end)return true;
 		}
-		if (*iter == '=')return false;// this attr without name
+		if (*iter == '=')return ParseFail;// this attr without name
 		// <[name] attr="value" >
 		//         ^
 		//         iter
 		auto attrBegin = iter;
 		while (!xmlIsSpace(iter) && *iter != '=') {
-			if (++iter == end)return false;//error: attr format missing "="
+			if (++iter == end)return ParseFail;//error: attr format missing "="
 		}
 		// <[name] attr = "value" >
 		//             ^
 		//             iter
 		auto attrEnd = iter;
 		while (*iter != '=') {
-			if (++iter == end)return false;//error: attr format missing "="
+			if (++iter == end)return ParseFail;//error: attr format missing "="
 		}
 		// <[name] attr = "value" >
 		//              ^
 		//              iter
 		while (true) {
-			if (++iter == end)return false;//error: attr format missing attr value
+			if (++iter == end)return ParseFail;//error: attr format missing attr value
 			if (*iter == '/') {
-				return false;
+				return ParseFail;
 			}
 			else if (*iter == '>') {
-				return false;
+				return ParseFail;
 			}
 			else if (*iter == '\"') {
 				// <[name] attr = "value" >
@@ -79,7 +79,7 @@ static bool getAttribute(std::shared_ptr<Xml::Tag>& tag, const std::string::cons
 				//                 ^
 				//                 iter
 				while (*iter != '\"') {
-					if (++iter == end)return false;//error: attr format missing close scope "
+					if (++iter == end)return ParseFail;//error: attr format missing close scope "
 				}
 				// <[name] attr = "value" >
 				//                      ^
@@ -88,19 +88,19 @@ static bool getAttribute(std::shared_ptr<Xml::Tag>& tag, const std::string::cons
 				tag->attributes[std::string(attrBegin, attrEnd)] = Xml::StringView(attrValueBegin, attrValueEnd);
 				iter++;
 				if (iter == end || *iter == '/' || *iter == '>')return true;
-				if (*iter != ' ')return false;//error: attr format missing space between two attr(<[name] attr0="value"attr1="value">)
+				if (!xmlIsSpace(iter))return ParseFail;//error: attr format missing space between two attr(<[name] attr0="value"attr1="value">)
 				break;
 			}
 			else if (*iter == '\'') {
 				auto attrValueBegin = ++iter;
 				while (*iter != '\'') {
-					if (++iter == end)return false;//error: attr format missing close scope "
+					if (++iter == end)return ParseFail;//error: attr format missing close scope "
 				}
 				auto attrValueEnd = iter;
 				tag->attributes[std::string(attrBegin, attrEnd)] = Xml::StringView(attrValueBegin, attrValueEnd);
 				iter++;
 				if (iter == end || *iter == '/' || *iter == '>')return true;
-				if (*iter != ' ')return false;//error: attr format missing space between two attr(<[name] attr0="value"attr1="value">)
+				if (!xmlIsSpace(iter))return ParseFail;//error: attr format missing space between two attr(<[name] attr0="value"attr1="value">)
 				break;
 			}
 		}
@@ -114,23 +114,23 @@ parse extern tag <? ... ?>
 static bool parseExtern(const std::shared_ptr<Xml>& xml, std::shared_ptr<Xml::Tag>& tag, const std::string::const_iterator& begin, std::string::const_iterator& end) {
 	const auto stringEnd = xml->toXmlString().end();
 	auto current = begin;
-	if (++current == stringEnd)return false;
-	if (++current == stringEnd)return false;
+	if (++current == stringEnd)return ParseFail;
+	if (++current == stringEnd)return ParseFail;
 
 	//<? [name] attr="value"?>
 	//  ^
 	//  current
 	while (xmlIsSpace(current)) {
-		if (*current == '?' || current == xml->toXmlString().end())return false;//error: xml format[tag without name]
-		if (++current == stringEnd)return false;
+		if (*current == '?' || current == xml->toXmlString().end())return ParseFail;//error: xml format[tag without name]
+		if (++current == stringEnd)return ParseFail;
 	}
 	//<? [name] attr="value"?>
 	//   ^
 	//   current
 	auto nbegin = current;
 	while (!xmlIsSpace(current) && *current != '?') {
-		if (*current == '>' || current == xml->toXmlString().end())return false;//error: xml format[extern tag not end up with "?>"]
-		if (++current == stringEnd)return false;
+		if (*current == '>' || current == xml->toXmlString().end())return ParseFail;//error: xml format[extern tag not end up with "?>"]
+		if (++current == stringEnd)return ParseFail;
 	}
 	//<? [name] attr="value"?>
 	//         ^
@@ -145,40 +145,40 @@ static bool parseExtern(const std::shared_ptr<Xml>& xml, std::shared_ptr<Xml::Ta
 	// if (!xmlNameCheck(tag->name))return false;
 
 	while (*current != '?') {
-		if (*current == '>')return false;//error: xml format[extern tag not end up with "?>"]
+		if (*current == '>')return ParseFail;//error: xml format[extern tag not end up with "?>"]
 		if (!xmlIsSpace(current)) {// get attribute
 			//<?[name] attr="value"?>
 			//         ^
 			//         current
 			auto attributeBegin = current;
 			while (*current != '=') {
-				if (*current == '?' || *current == '>')return false;//error: xml format[attribute without "="]
-				if (++current == stringEnd)return false;
+				if (*current == '?' || *current == '>')return ParseFail;//error: xml format[attribute without "="]
+				if (++current == stringEnd)return ParseFail;
 			}
 			//<?[name] attr="value"?>
 			//             ^
 			//             current
 			auto attributeEnd = current;
 			while (*current != '\"' && *current != '\'') {
-				if (*current == '?' || *current == '>')return false;//error: xml format[extern tag not end up with "?>"]
-				if (++current == stringEnd)return false;
+				if (*current == '?' || *current == '>')return ParseFail;//error: xml format[extern tag not end up with "?>"]
+				if (++current == stringEnd)return ParseFail;
 			}
 			//<?[name] attr="value"?>
 			//              ^
 			//              current
 			auto attributeValueBegin = current + 1;
 			if (*current == '\"') {
-				if (++current == stringEnd)return false;
+				if (++current == stringEnd)return ParseFail;
 				while (*current != '\"') {
-					if (*current == '?' || *current == '>')return false;//error: xml format[extern tag attribute not close with "]
-					if (++current == stringEnd)return false;
+					if (*current == '?' || *current == '>')return ParseFail;//error: xml format[extern tag attribute not close with "]
+					if (++current == stringEnd)return ParseFail;
 				}
 			}
 			else {
-				if (++current == stringEnd)return false;
+				if (++current == stringEnd)return ParseFail;
 				while (*current != '\'') {
-					if (*current == '?' || *current == '>')return false;//error: xml format[extern tag attribute not close with ']
-					if (++current == stringEnd)return false;
+					if (*current == '?' || *current == '>')return ParseFail;//error: xml format[extern tag attribute not close with ']
+					if (++current == stringEnd)return ParseFail;
 				}
 			}
 			//<?[name] attr="value"?>
@@ -187,12 +187,12 @@ static bool parseExtern(const std::shared_ptr<Xml>& xml, std::shared_ptr<Xml::Ta
 			auto attributeValueEnd = current;
 			tag->attributes[removeEndSpaces(std::string(attributeBegin, attributeEnd))] = Xml::StringView(attributeValueBegin, attributeValueEnd);
 		}
-		if (++current == stringEnd)return false;
+		if (++current == stringEnd)return ParseFail;
 	}
 	//<? [name] attr="value"?>
 	//                      ^
 	//                      current
-	if (++current == stringEnd)return false;
+	if (++current == stringEnd)return ParseFail;
 	//<? [name] attr="value"?>
 	//                       ^
 	//                       current
@@ -204,7 +204,7 @@ static bool parseExtern(const std::shared_ptr<Xml>& xml, std::shared_ptr<Xml::Ta
 		return true;
 	}
 
-	return false;//error: xml format[extern tag not end up with "?>"]
+	return ParseFail;//error: xml format[extern tag not end up with "?>"]
 }
 /*
 parse normal tag </>
@@ -220,13 +220,13 @@ static bool parseNode(const std::shared_ptr<Xml>& xml, std::shared_ptr<Xml::Tag>
 	// begin
 	const auto stringEnd = xml->toXmlString().end();
 	auto current = begin + 1;
-	if (current == stringEnd)return false;
+	if (current == stringEnd)return ParseFail;
 	// <	[name] attr="value" >
 	//  ^
 	//  current
 	while (xmlIsSpace(current)) {
-		if (*current == '/' || *current == '>')return false;//error: xml format[tag without name]
-		if (++current == stringEnd)return false;
+		if (*current == '/' || *current == '>')return ParseFail;//error: xml format[tag without name]
+		if (++current == stringEnd)return ParseFail;
 	}
 
 	// <	[name] attr="value" >
@@ -234,28 +234,28 @@ static bool parseNode(const std::shared_ptr<Xml>& xml, std::shared_ptr<Xml::Tag>
 	//      current
 	auto nbegin = current;
 	while (!xmlIsSpace(current)) {
-		if (current == stringEnd)return false;
+		if (current == stringEnd)return ParseFail;
 		if (*current == '/') {
-			if (++current == stringEnd)return false;
+			if (++current == stringEnd)return ParseFail;
 			else if (*current == '>') {
 				tag->name = Xml::StringView(nbegin, current - 1);
-				if (!xmlNameCheck(tag->name))return false;
+				if (!xmlNameCheck(tag->name))return ParseFail;
 				// the tag in format: <[name]/>
 				end = ++current;
 				return true;
 			}
 			else
-				return false;//error: xml format[tag without end up with "/>"]
+				return ParseFail;//error: xml format[tag without end up with "/>"]
 		}
 		else if (*current == '>') {
 			break;//format < ... >
 		}
-		if (++current == stringEnd)return false;
+		if (++current == stringEnd)return ParseFail;
 	}
 	// There may be a few space between [name] and end of the tag(">" or "/>")
 	auto nend = current;
 	tag->name = Xml::StringView(nbegin, nend);
-	if (!xmlNameCheck(tag->name))return false;
+	if (!xmlNameCheck(tag->name))return ParseFail;
 	// <[name] attr="value" >
 	//        ^
 	//        current
@@ -265,28 +265,28 @@ static bool parseNode(const std::shared_ptr<Xml>& xml, std::shared_ptr<Xml::Tag>
 		if (*current == '>') {
 			break;
 		}
-		if (++current == stringEnd)return false;//error: xml format[tag without end up with "/>"]
+		if (++current == stringEnd)return ParseFail;//error: xml format[tag without end up with "/>"]
 		if (*current == '\"') {
 			do {
-				if (++current == stringEnd)return false;
+				if (++current == stringEnd)return ParseFail;
 			} while (*current != '\"');
 		}
 		else if (*current == '\'') {
 			do {
-				if (++current == stringEnd)return false;
+				if (++current == stringEnd)return ParseFail;
 			} while (*current != '\'');
 		}
 		else if (*current == '/') {
 			auto res = getAttribute(tag, nend, current);
-			if (!res)return false;
-			if (++current == stringEnd)return false;
+			if (!res)return ParseFail;
+			if (++current == stringEnd)return ParseFail;
 			if (*current == '>') {
 				// the tag in format: <[name] attr="attrValue"/>
 				end = ++current;
 				return true;
 			}
 			else
-				return false;//error: xml format[tag without end up with "/>"]
+				return ParseFail;//error: xml format[tag without end up with "/>"]
 		}
 	}
 	// tag is the "begin" tag (< ... >), need to find the end tag (</ ... >)
@@ -294,15 +294,15 @@ static bool parseNode(const std::shared_ptr<Xml>& xml, std::shared_ptr<Xml::Tag>
 	//        ^             ^
 	//        nend          current
 	auto res = getAttribute(tag, nend, current);
-	if (!res)return false;
-	if (++current == stringEnd)return false;//error: xml format[tag without end tag]
+	if (!res)return ParseFail;
+	if (++current == stringEnd)return ParseFail;//error: xml format[tag without end tag]
 
 	while (true) {
 		while (xmlIsSpace(current)) {
-			if (++current == stringEnd)return false;
+			if (++current == stringEnd)return ParseFail;
 		}
 		if (*current == '<') {
-			if ((current + 1) == stringEnd)return false;//error: xml format[tag without end tag]
+			if ((current + 1) == stringEnd)return ParseFail;//error: xml format[tag without end tag]
 			if (*(current + 1) == '/') {
 				//example0:
 				// </[name]>
@@ -312,7 +312,7 @@ static bool parseNode(const std::shared_ptr<Xml>& xml, std::shared_ptr<Xml::Tag>
 				// find end tag (</ ... >)
 				// TODO: check the end tag name is matched the begin tag name
 				while (*current != '>') {
-					if (++current == stringEnd)return false;//error: xml format[tag without end up with ">"]
+					if (++current == stringEnd)return ParseFail;//error: xml format[tag without end up with ">"]
 				}
 				end = ++current;
 				return true;
@@ -328,7 +328,7 @@ static bool parseNode(const std::shared_ptr<Xml>& xml, std::shared_ptr<Xml::Tag>
 				auto stag = std::make_shared<Xml::Tag>(xml, current, tag);
 				auto end = current;
 				auto res = parseNode(xml, stag, current, end);
-				if (!res)return false;//error: sub tag parse failed
+				if (!res)return ParseFail;//error: sub tag parse failed
 				tag->children.push_back(stag);
 				current = end;
 			}
@@ -337,7 +337,7 @@ static bool parseNode(const std::shared_ptr<Xml>& xml, std::shared_ptr<Xml::Tag>
 			// tag with content(< ... > ... </ ... >)
 			auto contentBegin = current;
 			while (*current != '<') {
-				if (++current == stringEnd)return false;//error: xml format[tag without end up with ">"]
+				if (++current == stringEnd)return ParseFail;//error: xml format[tag without end up with ">"]
 			}
 			auto contentEnd = current;
 			tag->content = Xml::StringView(contentBegin, contentEnd);
@@ -522,9 +522,9 @@ std::string Xml::Tag::toString()const
 
 static std::string attrToString(const Xml::Tag* tag) {
 	if (tag->attributes.empty())return std::string();
-	std::string res = " ";// add a space
+	std::string res;// add a space
 	for (auto iter = tag->attributes.begin(); iter != tag->attributes.end(); iter++) {
-		res += iter->first + "=" + "\"" + iter->second.toXmlString() + "\"";
+		res += " " + iter->first + "=" + "\"" + iter->second.toXmlString() + "\"";
 	}
 	return res;
 }
@@ -577,6 +577,18 @@ bool Xml::StringView::compare(const Xml::StringView& first, const Xml::StringVie
 	}
 	if (sIter != second._end)return false;
 	return true;
+}
+
+bool Xml::StringView::compare(const Xml::StringView& first, const std::string& second)
+{
+	auto fIter = first._begin;
+	auto sIter = second.begin();
+	for (; fIter != first._end; fIter++, sIter++) {
+		if (sIter == second.end()) return false;
+		else if (*fIter != *sIter)return false;
+	}
+	if (sIter != second.end())return false;
+	return false;
 }
 
 /*

@@ -9,6 +9,8 @@
 #include <list>
 #include <atomic>
 
+#include <assert.h>
+
 #ifdef _XML_DLL
 #ifdef WIN32 // Windows platform
 #pragma warning(push)
@@ -26,6 +28,19 @@
 #define _XML_API // static link
 #endif // _DLL
 
+#define _XML_DEBUG
+
+#ifdef  _XML_DEBUG
+inline bool fail() {
+	assert(false);
+	return false;
+}
+
+	#define ParseFail fail()
+#else
+	#define ParseFail false
+#endif
+
 class _XML_API Xml {
 	static std::map<std::string/*path*/, std::shared_ptr<Xml>> _fileCache;
 	Xml(const std::string& filePath_) :path(filePath_), content() {}
@@ -42,6 +57,7 @@ public:
 		bool _vaild;
 	public:
 		static bool compare(const Xml::StringView& first, const Xml::StringView& second);
+		static bool compare(const Xml::StringView& first, const std::string& second);
 #ifdef  _XML_DEBUG
 		std::string view;
 		StringView() :_begin(), _end(), _vaild(false), view() {}
@@ -77,6 +93,10 @@ public:
 
 		bool operator==(const StringView& other) const {
 			return (other._begin == this->_begin) && (other._end == this->_end) ? true : false;
+		}
+
+		bool operator==(const std::string& other) const {
+			return compare(*this, other);
 		}
 
 		inline bool vaild() const {

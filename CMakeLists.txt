@@ -5,6 +5,7 @@ cmake_minimum_required (VERSION 3.8)
 
 project ("cXml")
 
+# copy test.xml to runtime directory
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/test.xml ${CMAKE_CURRENT_BINARY_DIR}/test.xml COPYONLY)
 
 include_directories(./source)
