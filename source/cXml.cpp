@@ -535,7 +535,7 @@ std::shared_ptr<Xml::Tag> Xml::Tag::get()
 	return shared_from_this();
 }
 
-bool Xml::Tag::addChild(std::shared_ptr<Xml::Tag>& child)
+bool Xml::Tag::addChild(const std::shared_ptr<Xml::Tag>& child)
 {
 	if (child == nullptr)return false;
 	child->xml = this->xml;

@@ -128,15 +128,18 @@ public:
 		/*
 		warning: use newTag(), do not direct use Xml::Tag construction
 		*/
-		Tag(const std::string& name_): name(name_) {}
+		Tag(const std::string& name_): name(name_) {
+			// TODO; convert
+		}
 		Tag(std::string&& name_) : name(name_) {
-			
+			// TODO; convert
 		}
 
 	public:
 		static std::shared_ptr<Xml::Tag> newTag(const std::string& name);
 		static std::shared_ptr<Xml::Tag> newTag(std::string&& name);
 		friend Xml;
+
 		/*
 		warning: use newTag(), do not direct use Xml::Tag construction
 		*/
@@ -183,7 +186,7 @@ public:
 		}
 
 		std::shared_ptr<Xml::Tag> get();
-		bool addChild(std::shared_ptr<Xml::Tag>& child);
+		bool addChild(const std::shared_ptr<Xml::Tag>& child);
 
 		std::string toString()const;
 		std::string toXmlString()const;
