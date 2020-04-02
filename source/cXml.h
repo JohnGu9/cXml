@@ -28,17 +28,15 @@
 #define _XML_API // static link
 #endif // _DLL
 
-#define _XML_DEBUG
-
 #ifdef  _XML_DEBUG
 inline bool fail() {
 	assert(false);
 	return false;
 }
 
-	#define ParseFail fail()
+#define ParseFail fail()
 #else
-	#define ParseFail false
+#define ParseFail false
 #endif
 
 class _XML_API Xml {
@@ -52,6 +50,7 @@ public:
 	static bool parse(const std::shared_ptr<Xml> xml);
 
 	class _XML_API StringView {
+		std::string raw;
 		std::string::const_iterator _begin;
 		std::string::const_iterator _end;
 		bool _vaild;
@@ -75,17 +74,29 @@ public:
 			return *this;
 		}
 #else
-		StringView() :_begin(), _end(), _vaild(false) {}
-		StringView(std::string::const_iterator&& begin_, std::string::const_iterator&& end_) :_begin(begin_), _end(end_), _vaild(begin_!= end_) {}
-		StringView(const std::string::const_iterator& begin_, const std::string::const_iterator& end_) :_begin(begin_), _end(end_), _vaild(begin_ != end_) {}
+		StringView() :raw(), _begin(), _end(), _vaild(false) {}
+		StringView(std::string::const_iterator&& begin_, std::string::const_iterator&& end_) :raw(), _begin(begin_), _end(end_), _vaild(begin_ != end_) {}
+		StringView(const std::string::const_iterator& begin_, const std::string::const_iterator& end_) :raw(), _begin(begin_), _end(end_), _vaild(begin_ != end_) {}
 
-		StringView(const StringView& other) :_begin(other._begin), _end(other._end), _vaild(other._vaild) {}
-		StringView(StringView&& other)noexcept :_begin(std::move(other._begin)), _end(std::move(other._end)), _vaild(std::move(other._vaild)) {}
+		StringView(const StringView& other) :raw(), _begin(other._begin), _end(other._end), _vaild(other._vaild) {}
+		StringView(StringView&& other)noexcept :raw(), _begin(std::move(other._begin)), _end(std::move(other._end)), _vaild(std::move(other._vaild)) {}
+
+		// from string
+		StringView(const std::string& other)noexcept :raw(other), _begin(raw.begin()), _end(raw.end()), _vaild(std::move(!raw.empty())) {}
+		StringView(std::string&& other)noexcept :raw(other), _begin(raw.begin()), _end(raw.end()), _vaild(std::move(!raw.empty())) {}
 
 		StringView& operator=(const StringView& other) {
 			this->_begin = other._begin;
 			this->_end = other._end;
 			this->_vaild = other._vaild;
+			return *this;
+		}
+
+		StringView& operator=(const char* str) {
+			this->raw = std::string(str);
+			this->_begin = raw.begin();
+			this->_end = raw.end();
+			this->_vaild = (_begin != _end);
 			return *this;
 		}
 
@@ -168,7 +179,7 @@ public:
 
 	/*
 	Load cached xml file. if file doesn't exist in cache, cache the file.
-	Warning: This method will automaticly cache file, need to call free() to release memory. 
+	Warning: This method will automaticly cache file, need to call free() to release memory.
 	args:
 		[const std::string& path]: xml file's path
 	return: std::shared_ptr<Xml> that point to Xml
