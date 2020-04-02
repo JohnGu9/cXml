@@ -34,5 +34,20 @@ int main()
 	/*If get xml pointer come from fromFile(string), need to call free()*/
 	xml->free();
 
+	{
+		// create xml
+		cout <<endl<< "* create xml *" << endl;
+		auto tag = Xml::Tag::newTag("hello world");// vaild name: contain a space
+		if (tag == nullptr) {
+			cout << "- vaild name" << endl;
+			tag = Xml::Tag::newTag("hellWorld");
+		}
+		tag->attributes["attr"] = "value";
+		tag->addChild(Xml::Tag::newTag("tag0"));
+		tag->addChild(Xml::Tag::newTag("tag1"));
+		auto xmlFromTag = tag->toXml();
+		cout << xmlFromTag->toXmlString() << endl;
+	}
+
 	return 0;
 }

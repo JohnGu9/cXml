@@ -124,8 +124,22 @@ public:
 		std::string toXmlString() const;
 	};
 
-	class _XML_API Tag {
+	class _XML_API Tag : public std::enable_shared_from_this<Xml::Tag>{
+		/*
+		warning: use newTag(), do not direct use Xml::Tag construction
+		*/
+		Tag(const std::string& name_): name(name_) {}
+		Tag(std::string&& name_) : name(name_) {
+			
+		}
+
 	public:
+		static std::shared_ptr<Xml::Tag> newTag(const std::string& name);
+		static std::shared_ptr<Xml::Tag> newTag(std::string&& name);
+		friend Xml;
+		/*
+		warning: use newTag(), do not direct use Xml::Tag construction
+		*/
 		Tag(const std::shared_ptr<Xml>& xml_, const std::string::const_iterator& begin_) :
 			begin_(begin_),
 			xml(xml_),
@@ -134,7 +148,6 @@ public:
 			content(),
 			attributes(),
 			children() {}
-
 		Tag(const std::shared_ptr<Xml>& xml_, const std::string::const_iterator& begin_, const std::shared_ptr<Xml::Tag>& parent) :
 			begin_(begin_),
 			xml(xml_),
@@ -168,6 +181,9 @@ public:
 		inline std::string::const_iterator begin()const {
 			return this->begin_;
 		}
+
+		std::shared_ptr<Xml::Tag> get();
+		bool addChild(std::shared_ptr<Xml::Tag>& child);
 
 		std::string toString()const;
 		std::string toXmlString()const;

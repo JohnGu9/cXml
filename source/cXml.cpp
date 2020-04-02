@@ -514,6 +514,36 @@ static std::string _toString(const unsigned int depth, const Xml::Tag* ptr) {
 	return res;
 }
 
+_XML_API std::shared_ptr<Xml::Tag> Xml::Tag::newTag(const std::string& name)
+{
+	for (auto iter = name.begin(); iter != name.end(); iter++) {
+		if (xmlIsSpace(iter))return std::shared_ptr<Xml::Tag>(nullptr);
+	}
+	return std::shared_ptr<Xml::Tag>(new Xml::Tag(name));
+}
+
+_XML_API std::shared_ptr<Xml::Tag> Xml::Tag::newTag(std::string&& name)
+{
+	for (auto iter = name.begin(); iter != name.end(); iter++) {
+		if (xmlIsSpace(iter))return std::shared_ptr<Xml::Tag>(nullptr);
+	}
+	return std::shared_ptr<Xml::Tag>(new Xml::Tag(name));
+}
+
+std::shared_ptr<Xml::Tag> Xml::Tag::get() 
+{
+	return shared_from_this();
+}
+
+bool Xml::Tag::addChild(std::shared_ptr<Xml::Tag>& child)
+{
+	if (child == nullptr)return false;
+	child->xml = this->xml;
+	child->parent = shared_from_this();
+	children.push_back(child);
+	return true;
+}
+
 std::string Xml::Tag::toString()const
 {
 	auto res = _toString(0, this);
