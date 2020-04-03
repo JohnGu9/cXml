@@ -508,7 +508,7 @@ static std::string _toString(const unsigned int depth, const Xml::Tag* ptr) {
 	for (auto attr : ptr->attributes) {
 		res += _indentation(depth) + " * " + _attrToString(attr) + "\n";
 	}
-
+	if (ptr->content.vaild())res += _indentation(depth) + "[content] " + ptr->content.toString() + "\n";
 	for (auto sub : ptr->children)
 		res += _toString(depth + 1, sub.get());
 	return res;
