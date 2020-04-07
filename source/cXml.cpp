@@ -618,7 +618,7 @@ bool Xml::StringView::compare(const Xml::StringView& first, const std::string& s
 		else if (*fIter != *sIter)return false;
 	}
 	if (sIter != second.end())return false;
-	return false;
+	return true;
 }
 
 /*

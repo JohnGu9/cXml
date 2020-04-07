@@ -11,6 +11,14 @@
 
 #include <assert.h>
 
+#include <codecvt>
+#include <fcntl.h>
+#ifdef _WIN32
+#include <io.h>
+#else // UNIX
+#include <sys/io.h>
+#endif
+
 #ifdef _XML_DLL
 #ifdef WIN32 // Windows platform
 #pragma warning(push)
@@ -48,6 +56,14 @@ class _XML_API Xml {
 	std::string content;
 public:
 	static bool parse(const std::shared_ptr<Xml> xml);
+
+	class _XML_API Format {
+	public:
+		enum _FORMAT {
+			ASCII,
+			UTF_8,
+		};
+	};
 
 	class _XML_API StringView {
 		std::string raw;
@@ -124,11 +140,11 @@ public:
 		std::string toXmlString() const;
 	};
 
-	class _XML_API Tag : public std::enable_shared_from_this<Xml::Tag>{
+	class _XML_API Tag : public std::enable_shared_from_this<Xml::Tag> {
 		/*
 		warning: use newTag(), do not direct use Xml::Tag construction
 		*/
-		Tag(const std::string& name_): name(name_) {
+		Tag(const std::string& name_) : name(name_) {
 			// TODO; convert
 		}
 		Tag(std::string&& name_) : name(name_) {
@@ -159,7 +175,6 @@ public:
 			content(),
 			attributes(),
 			children() {}
-
 
 		std::string::const_iterator begin_;
 		std::weak_ptr<Xml> xml;

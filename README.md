@@ -5,7 +5,7 @@
 A open-source c++ library for parse markup language data. 
 ### Features
 - **Max performance 🚀**
-`only retrieve characters once`
+`only retrieve characters once without exception handling`
 
 - **Less memory 🛒**
 `no string copy`
