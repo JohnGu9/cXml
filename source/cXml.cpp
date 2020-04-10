@@ -598,6 +598,17 @@ std::shared_ptr<Xml> Xml::Tag::toXml() const
 	return Xml::fromString(toXmlString());
 }
 
+std::shared_ptr<Xml::Tag> Xml::Tag::clone() const
+{
+	auto res = newTag(this->name.toString());
+	res->xml = this->xml;
+	res->parent = this->parent;
+	res->content = this->content.toString();
+	res->attributes = this->attributes;
+	res->children = this->children;
+	return res;
+}
+
 bool Xml::StringView::compare(const Xml::StringView& first, const Xml::StringView& second)
 {
 	auto fIter = first._begin, sIter = second._begin;

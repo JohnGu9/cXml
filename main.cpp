@@ -40,7 +40,7 @@ int main()
 		auto tag = Xml::Tag::newTag("hello world");// vaild name: contain a space
 		if (tag == nullptr) {
 			cout << "- vaild name" << endl;
-			tag = Xml::Tag::newTag("hellWorld");
+			tag = Xml::Tag::newTag("helloWorld");
 		}
 		tag->attributes["attr"] = "value";
 		tag->addChild(Xml::Tag::newTag("tag0"));

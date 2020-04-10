@@ -206,6 +206,7 @@ public:
 		std::string toString()const;
 		std::string toXmlString()const;
 		std::shared_ptr<Xml> toXml()const;
+		std::shared_ptr<Xml::Tag> clone()const;
 	};
 
 	std::list<std::shared_ptr<Tag>> externTags;
