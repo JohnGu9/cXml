@@ -11,13 +11,13 @@ A open-source c++ library for parse markup language data.
 `no string copy`
 
 - **Safe operation ☂️**
-`stl smart pointer and string iterator, no raw pointer`
+`stl smart pointer and string iterator, no index or raw pointer`
 
 - **Cross platform 🐟**
 `standard c++ 11, no dependencies`
 
-- **No mixed content (this package doesn't support mix content) 👌🏻**
-`ease to use in the most xml file (with single root node, every node can only be either text node or element node)`
+- **Just for the usual xml 👌🏻**
+`ease to use in the most xml file (What c++ char(ASCII) can read, what cXml can handle. No mix xml node. No wired thing. )`
 
 ### Doc
 |Xml|Xml::Tag|Xml::StringView|
